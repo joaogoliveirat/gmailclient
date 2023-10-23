@@ -3,7 +3,7 @@ import email
 
 with imaplib.IMAP4_SSL(host='imap.gmail.com', port=imaplib.IMAP4_SSL_PORT) as imap:
     print('logando...')
-    code, response = imap.login('luizedureis1504@gmail.com', 'lomd yqhl rvuw ayki')
+    code, response = imap.login('myemail@gmail.com', 'apppassword')
     print(f'Resposta: {response[0].decode()}')
     print(f'Código: {code}')
     code, mail_count = imap.select('inbox', readonly=True)
