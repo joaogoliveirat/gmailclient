@@ -34,11 +34,12 @@ class LoginScreen(Screen):
 
         layout = BoxLayout(orientation='vertical', padding=300, spacing=10)
 
-        # Adicione uma imagem de logo acima das caixas de texto
-        logo_image = Image(source='unb.png', size_hint_y=None, height=130)
+        logo_image = Image(source='unb.png', size_hint_y=None, height=140)
 
-        self.email_input = CenteredHintTextInput(hint_text='Enter email', size_hint_y=None, height=50)
-        self.password_input = CenteredHintTextInput(hint_text='Enter password', password=True, size_hint_y=None, height=50)
+        second_logo_image = Image(source='gmail2.png', size_hint_y=None, height=65)
+
+        self.email_input = CenteredHintTextInput(hint_text='E-mail', size_hint_y=None, height=50)
+        self.password_input = CenteredHintTextInput(hint_text='Senha', password=True, size_hint_y=None, height=50)
         button_layout = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
         spacer_left = Label()
         login_button = Button(text='Login', size_hint=(1, 1.1), width=100, on_press=self.login)
@@ -48,6 +49,7 @@ class LoginScreen(Screen):
         button_layout.add_widget(login_button)
         button_layout.add_widget(spacer_right)
 
+        layout.add_widget(second_logo_image)
         layout.add_widget(logo_image)
         layout.add_widget(self.email_input)
         layout.add_widget(self.password_input)
@@ -110,33 +112,58 @@ class Main(Screen):
     
       
     def __init__(self, **kwargs):
-        
         super(Main, self).__init__(**kwargs)
-        self.name = 'main' 
-        box = BoxLayout(orientation='vertical')
+        self.name = 'main'
+        self.layout = GridLayout(cols=1, spacing=10, padding=10)
 
-        self.text_email = TextInput(hint_text='Escreva seu email aqui', multiline=True)
-        self.subject_input = TextInput(hint_text='Assunto', size_hint = (0.5, None), height=40)
-        self.from_input = TextInput(hint_text='De', size_hint=(0.5, None), height=30)
-        self.to_input = TextInput(hint_text='Email de Destino', size_hint=(0.5, None), height=30)
+        header_layout = BoxLayout(orientation='vertical', size_hint_y=None, height=50)
+        logo_image = Image(source='gmail.png', size_hint=(None, None), size=(50, 50))
+        
+        header_layout.add_widget(logo_image)
 
-        self.send_email_button = Button(text='Send Email', size_hint=(None, None), size=(200, 50),
-                                        on_release=self.send_email, pos_hint={'right': 1})
-        self.send_email_button.background_color = (0.2, 0.6, 0.8, 1)
-        self.send_email_button.color = (1, 1, 1, 1)
-        self.success_label = Label(text="", color=(0, 1, 0, 1))
+        self.from_input = TextInput(hint_text='De', size_hint=(1, None), height=50)
+        self.to_input = TextInput(hint_text='Para', size_hint=(1, None), height=50)
+        self.subject_input = TextInput(hint_text='Assunto', size_hint=(1, None), height=50)
+        self.text_email = TextInput(hint_text='Corpo do Email', size_hint=(1, None), height=600)
+        self.send_button = Button(text='Enviar', size_hint=(1, None), height=50, on_release=self.send_email)
+        self.success_label = Label(text='', color=(0, 1, 0, 1))
 
-        self.see_emails_button = Button(text='Ver Caixa de Entrada', on_release=self.show_emails)
+        email_form_layout = GridLayout(cols=1, spacing=10)
+        email_form_layout.add_widget(self.from_input)
+        email_form_layout.add_widget(self.to_input)
+        email_form_layout.add_widget(self.subject_input)
+        email_form_layout.add_widget(self.text_email)
 
+        email_form_scrollview = ScrollView(size_hint=(1, None), height=700)
+        email_form_scrollview.add_widget(email_form_layout)
 
-        box.add_widget(self.from_input)
-        box.add_widget(self.to_input)
-        box.add_widget(self.subject_input)
-        box.add_widget(self.text_email)
-        box.add_widget(self.send_email_button)
-        box.add_widget(self.see_emails_button)
-        box.add_widget(self.success_label)
-        self.add_widget(box)
+        self.layout.add_widget(header_layout)
+        self.layout.add_widget(email_form_scrollview)
+        self.layout.add_widget(self.send_button)
+        self.layout.add_widget(self.success_label)
+
+        signout_button = Button(text='Sair', size_hint=(None, None), size=(80, 40))
+        signout_button.bind(on_release=self.sign_out)
+
+        self.layout.add_widget(signout_button)
+
+        self.add_widget(self.layout)
+
+    def sign_out(self, instance):
+        self.email = ""
+        self.smtp_server = ""
+        self.password = ""
+        
+        self.from_input.text = ""
+        self.to_input.text = ""
+        self.subject_input.text = ""
+        self.text_email.text = ""
+
+        login_screen = self.manager.get_screen('login')
+        login_screen.email_input.text = ""
+        login_screen.password_input.text = ""
+
+        self.manager.current = 'login'
 
     def send_email(self, button):
         server = smtplib.SMTP_SSL(self.smtp_server)
